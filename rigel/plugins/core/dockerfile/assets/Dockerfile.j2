@@ -78,21 +78,36 @@ ENV {{ env.name }} {{ env.value }}
 
 # Install dependencies.
 RUN sudo apt clean && sudo apt update && sudo apt install -y \
+    build-essential \
+    {%- if 'melodic' == distro or 'kinetic' == distro %}
+    python-rosdep \
+    {% else %}
+    python3-rosdep \
+    {% endif -%}
     {% if configuration.apt is defined and configuration.apt|length > 0 -%}
     {% for package in configuration.apt -%}
         {{ package }} \
     {% endfor -%}
     {% endif -%}
     {% if configuration.compiler.name == 'colcon' -%}
-        python3-colcon-common-extensions \
+    python3-colcon-common-extensions \
     {% endif -%}
     {% if configuration.python_requirements_files is defined or configuration.pip is defined -%}
     {%- if 'melodic' == distro or 'kinetic' == distro -%}
-        python-pip \
+    python-pip \
     {%- else -%}
-        python3-pip \
+    python3-pip \
     {%- endif %}
     {% endif -%}
+    {% if configuration.compiler.name == 'catkin' -%}
+    {%- if distro in ['kinetic', 'melodic']-%}
+        python-catkin-tools \ 
+    ros-{{ distro }}-catkin \
+    {% else -%}
+        python3-catkin-tools \
+    python3-osrf-pycommon \
+    {%- endif %}
+    {%- endif %}
     ssh
 
 {% if configuration.docker_run is defined and configuration.docker_run|length > 0 -%}
@@ -160,9 +175,9 @@ RUN /bin/bash -c "source /opt/ros/{{ distro }}/setup.bash \
 {%- endif %}
     && rosdep install --rosdistro {{ distro }} --from-paths src --ignore-src -r -y \
     {% if configuration.compiler.name == 'catkin_make' -%}
-        && catkin_make {{ cmake_args }}"
-    {% elif configuration.compiler.name == 'colcon' -%}
-        && colcon build {{ cmake_args }}"
+        && {{ configuration.compiler.name }} {{ cmake_args }}"
+    {% elif configuration.compiler.name in ['catkin', 'colcon'] -%}
+        && {{ configuration.compiler.name }} build {{ cmake_args }}"
     {%- endif %}
 
 # Give permissions to user

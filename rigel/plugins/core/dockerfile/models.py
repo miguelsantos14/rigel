@@ -16,8 +16,7 @@ class Compiler(BaseModel, extra=Extra.forbid):
         :type name: string
         :param name: ROS package compiler.
         """
-        # NOTE: At the moment only "catkin" and "colcon" are supported.
-        if name not in ['catkin_make', 'colcon']:
+        if name not in ['catkin', 'catkin_make', 'colcon']:
             raise UnsupportedCompilerError(name)
         return name
 
