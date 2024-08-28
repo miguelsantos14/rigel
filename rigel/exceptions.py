@@ -93,7 +93,7 @@ class RigelfileNotFoundError(RigelError):
     Raised whenever a Rigelfile is required but is not found.
     """
     def __init__(self) -> None:
-        super().__init__("Rigelfile was not found. Use 'rigel init' to create one.")
+        super().__init__("Rigelfile not found. Use 'rigel init' to create one or provide a valida path.")
 
 
 class UnformattedRigelfileError(RigelError):

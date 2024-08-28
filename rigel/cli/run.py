@@ -17,11 +17,16 @@ class RunJobCommand(CLICommand):
 
     @click.command()
     @click.argument('job', type=str)
-    def job(self, job: str) -> None:
+    @click.option('--file', '-f', 'file', type=str, required=False,
+        default='./Rigelfile',
+        show_default=False,
+        help='Path to Rigelfile'
+    )
+    def job(self, job: str, file: str) -> None:
         """Run a single job
         """
         try:
-            orchestrator = Orchestrator('./Rigelfile')
+            orchestrator = Orchestrator(file)
             orchestrator.run_job(job)
         except RigelError as err:
             LOGGER.error(err)
@@ -29,11 +34,16 @@ class RunJobCommand(CLICommand):
 
     @click.command()
     @click.argument('sequence', type=str)
-    def sequence(self, sequence: str) -> None:
+    @click.option('--file', '-f', 'file', type=str, required=False,
+        default='./Rigelfile',
+        show_default=False,
+        help='Path to Rigelfile'
+    )
+    def sequence(self, sequence: str, file: str) -> None:
         """Run a sequence of jobs
         """
         try:
-            orchestrator = Orchestrator('./Rigelfile')
+            orchestrator = Orchestrator(file)
             orchestrator.run_sequence(sequence)
         except RigelError as err:
             LOGGER.error(err)
