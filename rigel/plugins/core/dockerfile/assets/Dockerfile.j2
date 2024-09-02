@@ -72,7 +72,7 @@ FROM {{ configuration.ros_image }}
 {% if configuration.env is defined and configuration.env|length > 0 -%}
 # Set required environment variables.
 {% for env in configuration.env -%}
-ENV {{ env.name }} {{ env.value }}
+ENV {{ env.name }}={{ env.value }}
 {% endfor %}
 {% endif -%}
 
