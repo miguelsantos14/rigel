@@ -60,11 +60,10 @@ class PluginManager:
         try:
             module = import_module(plugin_name)
             cls: Type = getattr(module, plugin_entrypoint)
-        except ModuleNotFoundError:
+        except (AttributeError, ModuleNotFoundError):
             raise PluginNotFoundError(plugin_complete_name)
 
         try:
-
             if not self.is_plugin_compliant(cls):
                 raise PluginNotCompliantError(
                     plugin_complete_name,
