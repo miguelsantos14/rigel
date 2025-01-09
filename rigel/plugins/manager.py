@@ -63,10 +63,17 @@ class PluginManager:
         except ModuleNotFoundError:
             raise PluginNotFoundError(plugin_complete_name)
 
-        if not self.is_plugin_compliant(cls):
+        try:
+
+            if not self.is_plugin_compliant(cls):
+                raise PluginNotCompliantError(
+                    plugin_complete_name,
+                    "entrypoint class must inherit functions 'setup','run', and 'stop' from class 'Plugin'."
+                )
+        except TypeError:
             raise PluginNotCompliantError(
                 plugin_complete_name,
-                "entrypoint class must inherit functions 'setup','run', and 'stop' from class 'Plugin'."
+                "import path is valid but it represents a module instead of an entrypoint class."
             )
 
         plugin = ModelBuilder(cls).build([

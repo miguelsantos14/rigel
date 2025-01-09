@@ -47,6 +47,7 @@ class PluginModel(BaseModel, extra=Extra.forbid):
     :type username: string
     :cvar username: The desired username. Defaults to 'user'.
     """
+
     # Optional fields.
     compiler: Compiler
     command: str = ''
