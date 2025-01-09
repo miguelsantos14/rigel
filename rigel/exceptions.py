@@ -166,8 +166,7 @@ class PluginNotFoundError(RigelError):
     :ivar plugin: Name of the plugin.
     """
     def __init__(self, plugin: str) -> None:
-        base = (f"Unable to load plugin '{plugin}'. Make sure plugin is installed in your system and the path is valid.\n"
-                "For more information on plugin installation run command 'rigel install --help'.")
+        base = (f"Unable to load plugin '{plugin}'. Make sure the plugin is installed in your system and the provided path is valid.")
         super().__init__(base)
         self.plugin = plugin
 
