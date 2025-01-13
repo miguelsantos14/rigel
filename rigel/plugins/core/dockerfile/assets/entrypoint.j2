@@ -8,6 +8,7 @@ source /opt/ros/{{ distro }}/setup.bash
 source ./devel/setup.bash
 {% elif configuration.compiler.name == 'colcon' -%}
 source ./install/setup.bash
+source ./.venv/bin/activate
 {% endif -%}
 {% if configuration.entrypoint is defined and configuration.entrypoint|length > 0 -%}
 {% for cmd in configuration.entrypoint -%}
