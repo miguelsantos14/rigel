@@ -95,8 +95,10 @@ RUN sudo apt clean && sudo apt update && sudo apt install -y \
     {% if configuration.python_requirements_files is defined or configuration.pip is defined -%}
     {%- if 'melodic' == distro or 'kinetic' == distro -%}
     python-pip \
+    python-venv \
     {%- else -%}
     python3-pip \
+    python3-venv \
     {%- endif %}
     {% endif -%}
     {% if configuration.compiler.name == 'catkin' -%}
@@ -117,33 +119,48 @@ RUN {{ cmd }}
 {% endfor -%}
 {%- endif %}
 
+# Create default user '{{ configuration.username }}'.
+ARG USERNAME={{ configuration.username }}
+RUN groupadd $USERNAME
+RUN useradd -ms /bin/bash -g $USERNAME $USERNAME
+
+# Create ROS workspace folder
+RUN mkdir -p /home/$USERNAME/ros_workspace/src
+
+# Create virtual environment for Python dependencies
+{% if distro in ['kinetic', 'melodic'] %}
+RUN python -m venv /home/$USERNAME/ros_workspace/.venv
+{% else -%}
+RUN python3 -m venv /home/$USERNAME/ros_workspace/.venv
+{%- endif %}
+
 {% if configuration.python_requirements_files is defined and configuration.python_requirements_files|length > 0 -%}
 # Copy Python requirement files
 {% for python_requirement_file in configuration.python_requirements_files -%}
 COPY {{ python_requirement_file }} {{ python_requirement_file }}
 {% endfor %}
-# Install Python dependencies from copied requirement files
-{% for python_requirement_file in configuration.python_requirements_files -%}
-RUN pip install -r {{ python_requirement_file }}
-{% endfor -%}
+
+# Install Python dependencies
+RUN . /home/$USERNAME/ros_workspace/.venv/bin/activate \
+{% if configuration.pip is defined and configuration.pip|length > 0 %}
+{% for python_dependency in configuration.pip %}
+    && pip install {{ python_dependency }} \
+{% endfor %}
 {%- endif %}
-{% if configuration.pip is defined and configuration.pip|length > 0 -%}
-# Install python dependencies
-{% for python_dependency in configuration.pip -%}
-RUN pip install {{ python_dependency }}
-{% endfor -%}
+    && pip install setuptools wheel
+
+# Install Python dependencies from provived requirement files
+RUN . /home/$USERNAME/ros_workspace/.venv/bin/activate \
+{% for python_requirement_file in configuration.python_requirements_files %}
+    && pip install -r {{ python_requirement_file }} \
+{% endfor %}
+    && echo "Installed Python dependencies from provided requirement files"
 {%- endif %}
 
-# Create default user '{{ configuration.username }}'.
-ARG USERNAME={{ configuration.username }}
-RUN groupadd $USERNAME
-RUN useradd -ms /bin/bash -g $USERNAME $USERNAME
+# Set user as ROS workspace owner
 RUN sh -c 'echo "$USERNAME ALL=(root) NOPASSWD:ALL" >> /etc/sudoers'
 RUN sh -c 'sudo chown -R {{ configuration.username }}:{{ configuration.username }} /home/{{ configuration.username }}'
 USER $USERNAME
-
-# Create ROS workspace folder
-RUN mkdir -p /home/{{ configuration.username }}/ros_workspace/src
 
 {%- if configuration.rosinstall is defined and configuration.rosinstall|length > 0 %}
 
