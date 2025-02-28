@@ -19,7 +19,7 @@ vars:
 # Specify your target ROS distribution.
 # This target distribution must be the same for all listed packages.
 #
-distro: '{{ distro }}'  # reference to declared global variable
+distro: '{{ vars.distro }}'  # reference to declared global variable
 
 #
 # Use the 'jobs' field to list all jobs to be considered.
@@ -92,9 +92,9 @@ packages:
       dockerfile:
         command: "rostopic pub -r 1 /chatter std_msgs/String '{\"data\": \"Hello\"}'"
       build:
-        image: rigel-test-publisher:{{ distro }}
-        load: {{ build_load }}
-        push: {{ build_push }}
+        image: "rigel-test-publisher:{{ vars.distro }}"
+        load: "{{ vars.build_load }}"
+        push: "{{ vars.build_push }}"
 
   subscriber:
     dir: "rigel_test/subscriber"
@@ -102,9 +102,9 @@ packages:
       dockerfile:
         command: "rostopic echo /chatter"
       build:
-        image: rigel-test-subsriber:{{ distro }}
-        load: {{ build_load }}
-        push: {{ build_push }}
+        image: "rigel-test-subsriber:{{ vars.distro }}"
+        load: "{{ vars.build_load }}"
+        push: "{{ vars.build_push }}"
 
 # 
 # Use the 'sequences' field to automate the sequential execution of jobs.
